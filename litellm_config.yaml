@@ -1,0 +1,87 @@
+model_list:
+    - model_name: catchpole/auto
+      litellm_params:
+          model: catchpole/auto
+
+    - model_name: lm_studio/gemma4-26b-a4b
+      litellm_params:
+          model: lm_studio/google/gemma-4-26b-a4b
+          api_base: os.environ/LM_STUDIO_API_BASE
+          api_key: os.environ/LM_STUDIO_API_KEY
+
+    - model_name: lm_studio/nomic-embed-text-v1.5
+      model_info:
+          mode: embedding
+      litellm_params:
+          model: lm_studio/text-embedding-nomic-embed-text-v1.5
+          api_base: os.environ/LM_STUDIO_API_BASE
+          api_key: os.environ/LM_STUDIO_API_KEY
+
+    # Anthropic Claude models via GitHub Copilot
+    - model_name: github_copilot/claude-sonnet-4.6
+      litellm_params:
+          model: github_copilot/claude-sonnet-4.6
+    - model_name: github_copilot/claude-sonnet-4.5
+      litellm_params:
+          model: github_copilot/claude-sonnet-4.5
+    - model_name: github_copilot/claude-haiku-4.5
+      litellm_params:
+          model: github_copilot/claude-haiku-4.5
+    - model_name: github_copilot/claude-opus-4.7
+      litellm_params:
+          model: github_copilot/claude-opus-4.7
+    - model_name: github_copilot/claude-opus-4.7-1m-internal
+      litellm_params:
+          model: github_copilot/claude-opus-4.7-1m-internal
+    - model_name: github_copilot/claude-opus-4.7-high
+      litellm_params:
+          model: github_copilot/claude-opus-4.7-high
+    - model_name: github_copilot/claude-opus-4.7-xhigh
+      litellm_params:
+          model: github_copilot/claude-opus-4.7-xhigh
+    - model_name: github_copilot/claude-opus-4.6
+      litellm_params:
+          model: github_copilot/claude-opus-4.6
+    - model_name: github_copilot/claude-opus-4.6-1m
+      litellm_params:
+          model: github_copilot/claude-opus-4.6-1m
+    - model_name: github_copilot/claude-opus-4.5
+      litellm_params:
+          model: github_copilot/claude-opus-4.5
+    # OpenAI GPT models via GitHub Copilot
+    - model_name: github_copilot/gpt-5.5
+      litellm_params:
+          model: github_copilot/gpt-5.5
+    - model_name: github_copilot/gpt-5.4
+      litellm_params:
+          model: github_copilot/gpt-5.4
+    - model_name: github_copilot/gpt-5.2
+      litellm_params:
+          model: github_copilot/gpt-5.2
+    - model_name: github_copilot/gpt-5.4-mini
+      litellm_params:
+          model: github_copilot/gpt-5.4-mini
+    - model_name: github_copilot/gpt-5-mini
+      litellm_params:
+          model: github_copilot/gpt-5-mini
+    - model_name: github_copilot/gpt-4.1
+      litellm_params:
+          model: github_copilot/gpt-4.1
+    # Codex models (responses API only)
+    - model_name: github_copilot/gpt-5.3-codex
+      model_info:
+          mode: responses
+      litellm_params:
+          model: github_copilot/gpt-5.3-codex
+    - model_name: github_copilot/gpt-5.2-codex
+      model_info:
+          mode: responses
+      litellm_params:
+          model: github_copilot/gpt-5.2-codex
+
+litellm_settings:
+    custom_provider_map:
+        - provider: "catchpole"
+          # Format: "filename.instance_variable_name"
+          # Assuming hybrid_router.py is in the same directory you run litellm from
+          custom_handler: "catchpole.catchpole"

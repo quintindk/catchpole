@@ -1,0 +1,35 @@
+services:
+  litellm:
+    image: docker.litellm.ai/berriai/litellm:main-latest
+    container_name: catchpole-litellm
+    restart: unless-stopped
+    network_mode: host
+    command:
+      - "--config"
+      - "/app/config/litellm_config.yaml"
+      - "--port"
+      - "4000"
+      - "--host"
+      - "0.0.0.0"
+    working_dir: /app
+    env_file:
+      - .env
+    environment:
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-sk-catchpole-dev}
+      GITHUB_COPILOT_TOKEN_DIR: /app/copilot-auth
+      PYTHONPATH: /app/config
+      # LM Studio runs on the host; use host.docker.internal from inside the container.
+      CATCHPOLE_LOCAL_API_BASE: http://localhost:1234/v1
+      CATCHPOLE_LOCAL_API_KEY: ${LM_STUDIO_API_KEY}
+      CATCHPOLE_LOCAL_MODEL: openai/google/gemma-4-26b-a4b
+      CATCHPOLE_CLOUD_MODEL: github_copilot/claude-sonnet-4.6
+      LM_STUDIO_API_BASE: http://localhost:1234/v1
+    volumes:
+      - ./litellm_config.yaml:/app/config/litellm_config.yaml:ro
+      - ./catchpole.py:/app/config/catchpole.py:ro
+      - copilot-auth:/app/copilot-auth
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  copilot-auth:
