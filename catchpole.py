@@ -141,10 +141,35 @@ def _build_forward(kwargs: dict) -> dict:
     return forward
 
 
+def _has_mcp_tools(kwargs: dict) -> bool:
+    """Return True if the request carries any MCP tool block.
+
+    Any MCP-enriched request is, by construction, RAG over private data — its
+    response will quote indexed content. We never cloud-route such requests
+    regardless of the router's complexity assessment. This is a property of
+    the request itself, not of the caller, so no header trust is involved.
+    """
+    candidates = []
+    for src in (kwargs, kwargs.get("optional_params") or {}):
+        tools = src.get("tools")
+        if isinstance(tools, list):
+            candidates.extend(tools)
+    for tool in candidates:
+        if isinstance(tool, dict) and tool.get("type") == "mcp":
+            return True
+    return False
+
+
+async def _route(kwargs: dict) -> str:
+    if _has_mcp_tools(kwargs):
+        _log("MCP tools present in request, forcing LOCAL (no cloud route)")
+        return "LOCAL"
+    return await _decide(kwargs.get("messages", []))
+
+
 class CatchpoleRouter(CustomLLM):
     async def acompletion(self, *args, **kwargs) -> litellm.ModelResponse:
-        messages = kwargs.get("messages", [])
-        decision = await _decide(messages)
+        decision = await _route(kwargs)
         target = _target(decision)
         forward = _build_forward(kwargs)
         _log(f"acompletion forwarding keys={sorted(forward.keys())} target={target.get('model')}")
@@ -159,8 +184,7 @@ class CatchpoleRouter(CustomLLM):
     async def astreaming(
         self, *args, **kwargs
     ) -> AsyncIterator[GenericStreamingChunk]:
-        messages = kwargs.get("messages", [])
-        decision = await _decide(messages)
+        decision = await _route(kwargs)
         target = _target(decision)
         forward = _build_forward(kwargs)
         forward["stream"] = True
@@ -191,11 +215,10 @@ class CatchpoleRouter(CustomLLM):
             yield out  # type: ignore
 
     def completion(self, *args, **kwargs) -> litellm.ModelResponse:
-        messages = kwargs.get("messages", [])
         decision = "CLOUD"
         try:
             import asyncio as _asyncio
-            decision = _asyncio.run(_decide(messages))
+            decision = _asyncio.run(_route(kwargs))
         except Exception:
             pass
         target = _target(decision)
