@@ -3,9 +3,9 @@ model_list:
       litellm_params:
           model: catchpole/auto
 
-    - model_name: lm_studio/gemma4-26b-a4b
+    - model_name: lm_studio/local
       litellm_params:
-          model: lm_studio/google/gemma-4-26b-a4b
+          model: os.environ/CATCHPOLE_LOCAL_MODEL
           api_base: os.environ/LM_STUDIO_API_BASE
           api_key: os.environ/LM_STUDIO_API_KEY
 

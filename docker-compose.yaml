@@ -18,12 +18,13 @@ services:
       LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-sk-catchpole-dev}
       GITHUB_COPILOT_TOKEN_DIR: /app/copilot-auth
       PYTHONPATH: /app/config
-      # LM Studio runs on the host; use host.docker.internal from inside the container.
-      CATCHPOLE_LOCAL_API_BASE: http://localhost:1234/v1
+      # LM Studio runs on the host; with network_mode: host (Linux) or
+      # mirrored WSL networking, localhost works directly.
+      CATCHPOLE_LOCAL_API_BASE: ${CATCHPOLE_LOCAL_API_BASE:-http://localhost:1234/v1}
       CATCHPOLE_LOCAL_API_KEY: ${LM_STUDIO_API_KEY}
-      CATCHPOLE_LOCAL_MODEL: openai/google/gemma-4-26b-a4b
-      CATCHPOLE_CLOUD_MODEL: github_copilot/claude-sonnet-4.6
-      LM_STUDIO_API_BASE: http://localhost:1234/v1
+      CATCHPOLE_LOCAL_MODEL: ${CATCHPOLE_LOCAL_MODEL:-openai/google/gemma-4-26b-a4b}
+      CATCHPOLE_CLOUD_MODEL: ${CATCHPOLE_CLOUD_MODEL:-github_copilot/claude-sonnet-4.6}
+      LM_STUDIO_API_BASE: ${LM_STUDIO_API_BASE:-http://localhost:1234/v1}
     volumes:
       - ./litellm_config.yaml:/app/config/litellm_config.yaml:ro
       - ./catchpole.py:/app/config/catchpole.py:ro
@@ -33,3 +34,4 @@ services:
 
 volumes:
   copilot-auth:
+    external: true

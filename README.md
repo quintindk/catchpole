@@ -59,8 +59,9 @@ curl http://localhost:4000/v1/chat/completions \
 ```
 
 You can also target a specific model directly (e.g.
-`github_copilot/claude-sonnet-4.6`, `lm_studio/gemma4-26b-a4b`) — see
-`litellm_config.yaml` for the full list.
+`github_copilot/claude-sonnet-4.6`, `lm_studio/local`) — see
+`litellm_config.yaml` for the full list. `lm_studio/local` is an alias
+that resolves to whatever model id you set in `CATCHPOLE_LOCAL_MODEL`.
 
 ## Configuration
 
