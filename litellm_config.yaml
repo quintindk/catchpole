@@ -4,6 +4,8 @@ model_list:
           model: catchpole/auto
 
     - model_name: lm_studio/local
+      model_info:
+          mode: responses
       litellm_params:
           model: os.environ/CATCHPOLE_LOCAL_MODEL
           api_base: os.environ/LM_STUDIO_API_BASE
