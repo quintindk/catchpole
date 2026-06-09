@@ -1,9 +1,30 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: catchpole-postgres
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      POSTGRES_USER: ${LITELLM_DB_USER:-litellm}
+      POSTGRES_PASSWORD: ${LITELLM_DB_PASSWORD:-litellm-dev}
+      POSTGRES_DB: ${LITELLM_DB_NAME:-litellm}
+      PGPORT: ${LITELLM_DB_PORT:-5433}
+    volumes:
+      - catchpole-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${LITELLM_DB_USER:-litellm} -p ${LITELLM_DB_PORT:-5433}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   litellm:
     image: docker.litellm.ai/berriai/litellm:main-latest
     container_name: catchpole-litellm
     restart: unless-stopped
     network_mode: host
+    depends_on:
+      postgres:
+        condition: service_healthy
     command:
       - "--config"
       - "/app/config/litellm_config.yaml"
@@ -16,6 +37,11 @@ services:
       - .env
     environment:
       LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-sk-catchpole-dev}
+      LITELLM_SALT_KEY: ${LITELLM_SALT_KEY:-sk-catchpole-salt-change-me}
+      DATABASE_URL: postgresql://${LITELLM_DB_USER:-litellm}:${LITELLM_DB_PASSWORD:-litellm-dev}@localhost:${LITELLM_DB_PORT:-5433}/${LITELLM_DB_NAME:-litellm}
+      STORE_MODEL_IN_DB: "True"
+      UI_USERNAME: ${LITELLM_UI_USERNAME:-admin}
+      UI_PASSWORD: ${LITELLM_UI_PASSWORD:-admin}
       GITHUB_COPILOT_TOKEN_DIR: /app/copilot-auth
       PYTHONPATH: /app/config
       # LM Studio runs on the host; with network_mode: host (Linux) or
@@ -35,3 +61,4 @@ services:
 volumes:
   copilot-auth:
     external: true
+  catchpole-postgres:
